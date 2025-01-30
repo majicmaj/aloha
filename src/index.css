@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseTyping {
+  0% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(0.95);
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.chat-message {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.typing-indicator {
+  animation: blink 1s infinite;
+}
+
+.gradient-bg {
+  @apply bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800;
+}
+
+.message-bubble-user {
+  @apply bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1),
+    0 2px 4px -1px rgba(37, 99, 235, 0.06);
+  transition: all 0.2s ease;
+}
+
+.message-bubble-user:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.15),
+    0 3px 6px -1px rgba(37, 99, 235, 0.08);
+}
+
+.message-bubble-assistant {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+.message-bubble-assistant:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.07),
+    0 3px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+/* Dark mode syntax highlighting overrides */
+.dark .prose pre {
+  @apply bg-gray-900;
+}

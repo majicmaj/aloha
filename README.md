@@ -1,67 +1,115 @@
 # Aloha
 
-## Self-hosted AI Chat Application
+## Self-Hosted AI Chat Application
 
-This is a self-hosted chat application that connects to a local Ollama instance running the DeepSeek-R1 model. It provides a modern chat interface similar to ChatGPT but runs entirely on your own infrastructure.
+Aloha is a self-hosted chat application that connects to a local **Ollama** instance. It provides a modern chat interface similar to ChatGPT but runs entirely on your own infrastructure.
+
+---
 
 ## Prerequisites
 
-- Node.js 18 or later
-- Ubuntu 20.04 or later (for Ollama)
+- **Node.js** 18 or later
+- **Ubuntu** 20.04 or later (for Ollama)
 
-## Setting up Ollama
+---
 
-1. Install Ollama on Ubuntu:
+## Setting Up Ollama
 
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-```
+1. **Install Ollama on Ubuntu:**
 
-2. Pull the DeepSeek-R1 model:
+   ```bash
+   curl -fsSL https://ollama.com/install.sh | sh
+   ```
 
-```bash
-ollama pull deepseek-coder:1.3b
-```
+2. **Pull the DeepSeek-R1 model:**
 
-3. Start the Ollama service:
+   ```bash
+   ollama pull deepseek-coder:1.3b
+   ```
 
-```bash
-systemctl start ollama
-```
+3. **Start the Ollama service:**
 
-The Ollama API will be available at http://localhost:11434
+   ```bash
+   systemctl start ollama
+   ```
 
-## Setting up the Web Application
+4. **(Optional) Configure Ollama for Network Access:**  
+   If running Ollama on a separate server, update its environment variables to allow network access. Refer to the [Ollama FAQ](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server) for details.
 
-1. Clone this repository
-2. Install dependencies:
+   - By default, the **Ollama API** is available at:
+     ```
+     http://localhost:11434
+     ```
 
-```bash
-npm install
-```
+---
 
-3. Start the development server:
+## Setting Up the Web Application
 
-```bash
-npm run dev
-```
+1. **Clone the repository:**
 
-4. Build for production:
+   ```bash
+   git clone <repo-url>
+   cd <repo-name>
+   ```
 
-```bash
-npm run build
-```
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables:**
+
+   Edit the `.env` file:
+
+   ```bash
+   vim .env
+   ```
+
+   Set the **Ollama API URL** (replace `192.168.x.x` with the appropriate IP if running remotely):
+
+   ```bash
+   VITE_URL=http://192.168.x.x:11434
+   ```
+
+4. **Start the development server:**
+
+   ```bash
+   npm run dev
+   ```
+
+5. **Build for production:**
+
+   ```bash
+   npm run build
+   ```
+
+---
 
 ## Configuration
 
-The application connects to Ollama at `http://localhost:11434` by default. If you need to change this, update the `OLLAMA_API_URL` in `src/lib/api.ts`.
+By default, the application connects to **Ollama** at:
+
+```
+http://localhost:11434
+```
+
+To change this, update `OLLAMA_API_URL` in:
+
+```
+src/lib/api.ts
+```
+
+---
 
 ## Security Considerations
 
-- The Ollama API should not be exposed directly to the internet
-- Use a reverse proxy with proper security headers if you need external access
-- Consider implementing authentication for the web application
+- **Do not expose the Ollama API directly to the internet.**
+- **Use a reverse proxy** with proper security headers if external access is needed.
+- **Implement authentication** for the web application if hosting publicly.
+
+---
 
 ## License
 
-MIT
+This project is licensed under the **MIT License**.

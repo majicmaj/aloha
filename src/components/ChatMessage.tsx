@@ -55,7 +55,7 @@ export function ChatMessage({ message, isTyping }: ChatMessageProps) {
       {!isUser && (
         <div className="flex-shrink-0 mt-1">
           <div className="w-6 h-6 flex items-center justify-center transform rotate-12 transition-transform hover:rotate-0">
-            <Flower className="w-6 h-6 text-white" />
+            <Flower className="w-6 h-6 text-black dark:text-white" />
           </div>
         </div>
       )}
@@ -125,7 +125,7 @@ export function ChatMessage({ message, isTyping }: ChatMessageProps) {
       {isUser && (
         <div className="flex-shrink-0 mt-1">
           <div className="w-6 h-6 rounded-2xl flex items-center justify-center transform -rotate-12 transition-transform hover:rotate-0">
-            <User className="w-6 h-6 text-white" />
+            <User className="w-6 h-6 text-black dark:text-white" />
           </div>
         </div>
       )}

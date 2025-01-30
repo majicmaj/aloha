@@ -49,7 +49,7 @@ export function SettingsPanel({
                   theme: settings.theme === "light" ? "dark" : "light",
                 })
               }
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="p-1 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
               {settings.theme === "light" ? (
                 <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
@@ -68,7 +68,7 @@ export function SettingsPanel({
                 onClick={() =>
                   onUpdate({ soundEnabled: !settings.soundEnabled })
                 }
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="p-1 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 {settings.soundEnabled ? (
                   <Volume2 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
@@ -79,7 +79,7 @@ export function SettingsPanel({
             </div>
 
             {settings.soundEnabled && (
-              <div className="space-y-3 pl-4">
+              <div className="space-y-2 pl-2">
                 <label className="flex items-center space-x-3">
                   <input
                     type="checkbox"

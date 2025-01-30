@@ -37,7 +37,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
 
   return (
     <div className="">
-      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-4">
+      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-4 py-0">
         <div className="flex gap-4 items-end">
           <div className="flex-1 min-w-0">
             <textarea
@@ -46,7 +46,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={disabled}
-              placeholder="Type your message... (Shift + Enter for new line)"
+              placeholder="Ask anything (Shift + Enter for new line)"
               className="w-full min-h-[48px] max-h-[200px] rounded-2xl border border-gray-200 px-4 py-3 bg-white
                      dark:bg-gray-800 text-gray-900 dark:text-gray-100 dark:border-gray-700
                        transition-all duration-200 ease-in-out resize-none

@@ -7,7 +7,6 @@ import { ChatMessage } from "../components/ChatMessage";
 import { ModelManager } from "../components/ModelManager";
 import { ModelSelector } from "../components/ModelSelector";
 import { SettingsPanel } from "../components/SettingsPanel";
-import { TypingIndicator } from "../components/TypingIndicator";
 import { useSettings } from "../hooks/useSettings";
 import { generateChatResponse } from "../lib/api";
 import type { Message } from "../types/chat";
@@ -113,16 +112,16 @@ export function Chat() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <header className="bg-white dark:bg-gray-900 bg-opacity-80 dark:bg-opacity-80 backdrop-blur-lg">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="w-48">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-white to-gray-100 dark:from-gray-950 dark:to-gray-900">
+      <header className="bg-white/80 dark:bg-gray-900/75 backdrop-blur-lg">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2 justify-between">
+          <div className="max-w-64">
             <ModelSelector
               currentModel={currentModel}
               onModelChange={setCurrentModel}
             />
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 lg:gap-4">
             <button
               onClick={() => setIsModelManagerOpen(true)}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -143,9 +142,12 @@ export function Chat() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto py-6">
           {messages.map((message, index) => (
-            <ChatMessage key={index} message={message} />
+            <ChatMessage
+              key={index}
+              message={message}
+              isTyping={mutation.isPending && index === messages.length - 1}
+            />
           ))}
-          {mutation.isPending && <TypingIndicator />}
           {messages.length === 0 && (
             <div className="flex items-center justify-center h-[calc(100vh-12rem)] text-gray-400 dark:text-gray-500">
               <div className="text-center space-y-4">

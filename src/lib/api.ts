@@ -1,4 +1,4 @@
-const OLLAMA_API_URL = "http://localhost:11434";
+const OLLAMA_API_URL = import.meta.env.VITE_URL;
 
 export async function generateChatResponse(
   messages: { role: string; content: string }[],

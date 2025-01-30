@@ -8,12 +8,9 @@ import {
   User,
 } from "lucide-react";
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import remarkGfm from "remark-gfm";
 import type { Message } from "../types/chat";
 import ProseMarkdown from "./ProseMarkdown";
+import { TypingIndicator } from "./TypingIndicator";
 
 interface ChatMessageProps {
   message: Message;
@@ -24,7 +21,7 @@ const copyCode = (code: string) => {
   navigator.clipboard.writeText(code);
 };
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, isTyping }: ChatMessageProps) {
   const isUser = message.role === "user";
   const [isThinkingExpanded, setIsThinkingExpanded] = useState(true);
 
@@ -51,12 +48,14 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
   return (
     <div
-      className={`chat-message flex gap-2 p-4 ${isUser ? "justify-end" : ""}`}
+      className={`chat-message flex gap-2 p-2 lg:p-4 ${
+        isUser ? "justify-end" : ""
+      }`}
     >
       {!isUser && (
         <div className="flex-shrink-0 mt-1">
-          <div className="w-10 h-10 flex items-center justify-center transform rotate-12 transition-transform hover:rotate-0">
-            <Flower className="w-8 h-8 text-white" />
+          <div className="w-6 h-6 flex items-center justify-center transform rotate-12 transition-transform hover:rotate-0">
+            <Flower className="w-6 h-6 text-white" />
           </div>
         </div>
       )}
@@ -64,7 +63,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
       <div
         className={`flex flex-col ${
           isUser ? "items-end" : "items-start"
-        } max-w-[80%] overflow-auto`}
+        } max-w-[90%] lg:max-w-[85%] overflow-auto`}
       >
         {!isUser && thinkingContent && (
           <div className="mb-2 w-full">
@@ -81,45 +80,18 @@ export function ChatMessage({ message }: ChatMessageProps) {
               <span>Thinking Process</span>
             </button>
             {isThinkingExpanded && (
-              <div className="prose prose-sm dark:prose-invert max-w-none mt-2 p-3 rounded-xl bg-gray-200 dark:bg-gray-800/50 text-sm text-gray-600 dark:text-gray-400">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    code({ node, inline, className, children, ...props }) {
-                      const match = /language-(\w+)/.exec(className || "");
-                      return (
-                        <div className="overflow-auto flex">
-                          {!inline && match ? (
-                            <SyntaxHighlighter
-                              style={vscDarkPlus}
-                              language={match[1]}
-                              PreTag="div"
-                              className="rounded-lg"
-                              {...props}
-                            >
-                              {String(children).replace(/\n$/, "")}
-                            </SyntaxHighlighter>
-                          ) : (
-                            <code className={className} {...props}>
-                              {children}
-                            </code>
-                          )}
-                        </div>
-                      );
-                    },
-                  }}
-                >
-                  {thinkingContent}
-                </ReactMarkdown>
+              <div className="prose prose-sm dark:prose-invert max-w-none mt-2 p-3 rounded-xl bg-white border-2 border-dashed border-gray-300 dark:border-gray-700 dark:bg-gray-800/0 text-sm text-gray-600 dark:text-gray-400">
+                <ProseMarkdown mainContent={thinkingContent} isUser={isUser} />
               </div>
             )}
           </div>
         )}
+
         <div
           className={`rounded-3xl px-4 py-3 ${
             isUser
-              ? "bg-gradient-to-r from-blue-500 to-blue-600 dark:black-blue-700 dark:to-blue-800 message-bubble-user dark:message-bubble-user-dark"
-              : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-700 message-bubble-assistant"
+              ? "bg-gradient-to-r from-gray-900 to-black dark:from-blue-800 dark:to-blue-900 message-bubble-user dark:message-bubble-user-dark"
+              : "bg-gradient-to-r from-gray-200 to-gray-300 dark:to-gray-900/0 dark:from-gray-900/0 dark:px-0 message-bubble-assistant"
           }`}
         >
           <div className={`prose prose-sm dark:prose-invert}`}>
@@ -128,7 +100,13 @@ export function ChatMessage({ message }: ChatMessageProps) {
             </div>
           </div>
         </div>
+
         <div className="flex items-center gap-2 px-1 mt-0.5">
+          {isTyping && !isUser && (
+            <div className="">
+              <TypingIndicator />
+            </div>
+          )}
           <span className="text-sm text-gray-600 dark:text-gray-400">
             {isUser ? "You" : "Model"}
           </span>
@@ -146,7 +124,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
       {isUser && (
         <div className="flex-shrink-0 mt-1">
-          <div className="w-10 h-10 rounded-2xl flex items-center justify-center transform -rotate-12 transition-transform hover:rotate-0">
+          <div className="w-6 h-6 rounded-2xl flex items-center justify-center transform -rotate-12 transition-transform hover:rotate-0">
             <User className="w-6 h-6 text-white" />
           </div>
         </div>

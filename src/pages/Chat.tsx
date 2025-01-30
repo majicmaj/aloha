@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Database, Flower, Settings as SettingsIcon } from "lucide-react";
 import React, { useState } from "react";
 import useSound from "use-sound";
@@ -19,7 +19,6 @@ const TYPING_SOUND =
   "https://assets.mixkit.co/active_storage/sfx/2357/2357-preview.mp3";
 
 export function Chat() {
-  const queryClient = useQueryClient();
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isModelManagerOpen, setIsModelManagerOpen] = useState(false);
@@ -31,18 +30,11 @@ export function Chat() {
     volume: 0.2,
     soundEnabled: settings.soundEnabled && settings.messageSound,
   });
+
   const [playTypingSound] = useSound(TYPING_SOUND, {
     volume: 0.2,
     soundEnabled: settings.soundEnabled && settings.typingSound,
   });
-
-  // const scrollToBottom = () => {
-  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  // };
-
-  // React.useEffect(() => {
-  //   scrollToBottom();
-  // }, [messages]);
 
   const mutation = useMutation({
     mutationFn: async (content: string) => {

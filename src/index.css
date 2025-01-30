@@ -48,7 +48,6 @@
 }
 
 .message-bubble-user {
-  @apply bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700;
   box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1),
     0 2px 4px -1px rgba(37, 99, 235, 0.06);
   transition: all 0.2s ease;

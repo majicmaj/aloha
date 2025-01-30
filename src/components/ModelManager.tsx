@@ -1,13 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Download, Loader2, Trash2, X } from "lucide-react";
 import { useState } from "react";
-import {
-  deleteModel,
-  getInstalledModels,
-  getRunningModels,
-  pullModel,
-  RECOMMENDED_MODELS,
-} from "../lib/api";
+import { RECOMMENDED_MODELS } from "../constants/models";
+import { deleteModel, getInstalledModels, pullModel } from "../lib/api";
 
 interface ModelManagerProps {
   isOpen: boolean;
@@ -29,17 +24,6 @@ export function ModelManager({ isOpen, onClose }: ModelManagerProps) {
     staleTime: 1000 * 60, // 1 minute
   });
 
-  // Query to get running models
-  const {
-    data: runningData,
-    isLoading: loadingRunning,
-    error: errorRunning,
-  } = useQuery({
-    queryKey: ["runningModels"],
-    queryFn: getRunningModels,
-    staleTime: 1000 * 60, // 1 minute
-  });
-
   const pullMutation = useMutation({
     mutationFn: pullModel,
     onSuccess: () =>
@@ -55,7 +39,6 @@ export function ModelManager({ isOpen, onClose }: ModelManagerProps) {
   if (!isOpen) return null;
 
   const installedModels = installedData?.models || [];
-  const runningModels = runningData?.models || [];
 
   // Filter out already installed models from available models
   const availableModels = RECOMMENDED_MODELS.filter(

@@ -6,10 +6,9 @@ Aloha is a self-hosted chat application that connects to a local **Ollama** inst
 
 ---
 
-## Prerequisites
+## Preview
 
-- **Node.js** 18 or later
-- **Ubuntu** 20.04 or later (for Ollama)
+![ALOHA](https://github.com/user-attachments/assets/2ed4fa62-a026-4812-8c35-f76674420b44)
 
 ---
 

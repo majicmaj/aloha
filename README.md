@@ -1,5 +1,8 @@
 # Aloha
 
+[![GitHub stars](https://img.shields.io/github/stars/majicmaj/aloha?style=social)](https://github.com/majicmaj/aloha/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/majicmaj/aloha?style=social)](https://github.com/majicmaj/aloha/network)
+
 ## Self-Hosted AI Chat Application
 
 Aloha is a self-hosted chat application that connects to a local **Ollama** instance. It provides a modern chat interface similar to ChatGPT but runs entirely on your own infrastructure.

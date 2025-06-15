@@ -90,7 +90,7 @@ export function ChatMessage({ message, isTyping }: ChatMessageProps) {
         <div
           className={`rounded-3xl px-4 py-3 ${
             isUser
-              ? "bg-gradient-to-r from-gray-900 to-black dark:from-blue-800 dark:to-blue-900 message-bubble-user dark:message-bubble-user-dark"
+              ? "bg-gradient-to-r from-gray-900 to-black dark:from-blue-700 dark:to-blue-800 message-bubble-user dark:message-bubble-user-dark"
               : "bg-gradient-to-r from-gray-200 to-gray-300 dark:to-gray-900/0 dark:from-gray-900/0 dark:px-0 message-bubble-assistant"
           }`}
         >

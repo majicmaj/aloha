@@ -75,3 +75,7 @@
 .dark .prose pre {
   @apply bg-gray-900;
 }
+
+body {
+  @apply dark:bg-gray-900
+}

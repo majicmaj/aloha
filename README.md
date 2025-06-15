@@ -23,10 +23,11 @@ Aloha is a self-hosted chat application that connects to a local **Ollama** inst
    curl -fsSL https://ollama.com/install.sh | sh
    ```
 
-2. **Pull the DeepSeek-R1 model:**
+2. **Pull a model:**
 
+   For example, to pull Llama 3:
    ```bash
-   ollama pull deepseek-coder:1.3b
+   ollama pull llama3
    ```
 
 3. **Start the Ollama service:**
@@ -85,6 +86,18 @@ Aloha is a self-hosted chat application that connects to a local **Ollama** inst
    ```bash
    npm run build
    ```
+
+---
+
+## Updating the Model List
+
+The application's model selection list is generated from the official Ollama library. To keep this list current, you can run the following command:
+
+```bash
+npm run update-models
+```
+
+This script fetches the latest models and updates `src/constants/models.ts` automatically.
 
 ---
 

@@ -4,11 +4,19 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Download, Loader2, Trash2, Search, ArrowUpDown } from "lucide-react";
+import {
+  Download,
+  Loader2,
+  Trash2,
+  Search,
+  ArrowUpDown,
+  ChevronDown,
+} from "lucide-react";
 import { useMemo, useState } from "react";
-import { RECOMMENDED_MODELS } from "../constants/models";
 import { deleteModel, getInstalledModels, pullModel } from "../lib/api";
 import { GetModelsResponse } from "../types/ollama";
+import { RECOMMENDED_MODELS } from "../constants/models";
+import { cn } from "../utils/cn";
 
 type Model = GetModelsResponse["models"][0];
 
@@ -77,6 +85,46 @@ function ModelCard({
   );
 }
 
+function ModelGroup({
+  groupName,
+  models,
+  ...props
+}: {
+  groupName: string;
+  models: string[];
+  installedModels: Model[];
+  pullMutation: UseMutationResult<void, Error, string, unknown>;
+  deleteMutation: UseMutationResult<void, Error, string, unknown>;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full p-6 flex items-center justify-between"
+      >
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          {groupName}
+        </h3>
+        <ChevronDown
+          className={cn(
+            "w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform",
+            isOpen && "rotate-180"
+          )}
+        />
+      </button>
+      {isOpen && (
+        <div className="p-6 pt-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {models.map((modelName) => (
+            <ModelCard key={modelName} modelName={modelName} {...props} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ModelManager() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
@@ -130,6 +178,17 @@ export function ModelManager() {
 
     return models;
   }, [installedModels, searchTerm, sortBy]);
+
+  const groupedModels = useMemo(() => {
+    return availableModels.reduce((acc, modelName) => {
+      const groupName = modelName.split(":")[0];
+      if (!acc[groupName]) {
+        acc[groupName] = [];
+      }
+      acc[groupName].push(modelName);
+      return acc;
+    }, {} as Record<string, string[]>);
+  }, [availableModels]);
 
   return (
     <div className="p-6 space-y-8">
@@ -205,11 +264,12 @@ export function ModelManager() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {availableModels.map((modelName: string) => (
-                <ModelCard
-                  key={modelName}
-                  modelName={modelName}
+            <div className="space-y-4">
+              {Object.entries(groupedModels).map(([groupName, models]) => (
+                <ModelGroup
+                  key={groupName}
+                  groupName={groupName}
+                  models={models}
                   installedModels={installedModels}
                   pullMutation={pullMutation}
                   deleteMutation={deleteMutation}

@@ -1,4 +1,5 @@
 import { ModelManagerPage } from "./pages/ModelManagerPage";
+import { SettingsPage } from "./pages/SettingsPage";
 import { Chat } from "./pages/Chat";
 import {
   BrowserRouter as Router,
@@ -6,10 +7,14 @@ import {
   Route,
   Link,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
-import { Blocks, Plus } from "lucide-react";
+import { Blocks, Plus, Trash2, Edit, Search, Settings } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./lib/db";
+import { Chat as ChatType } from "./lib/db";
+import { useState, useMemo } from "react";
+import { Logo } from "./assets/Logo";
 
 function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   const location = useLocation();
@@ -27,29 +32,114 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   );
 }
 
+function ChatListItem({ chat }: { chat: ChatType }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState(chat.title);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isActive = location.pathname === `/chat/${chat.id}`;
+
+  const handleSave = async () => {
+    if (title.trim() === "") {
+      setTitle(chat.title);
+    } else {
+      await db.chats.update(chat.id, { title });
+    }
+    setIsEditing(false);
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this chat?")) {
+      await db.chats.delete(chat.id);
+      if (isActive) {
+        navigate("/");
+      }
+    }
+  };
+
+  return (
+    <Link
+      to={`/chat/${chat.id}`}
+      className={`group block p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 truncate ${
+        isActive ? "bg-gray-200 dark:bg-gray-700" : ""
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        {isEditing ? (
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={handleSave}
+            onKeyDown={(e) => e.key === "Enter" && handleSave()}
+            className="bg-transparent w-full focus:outline-none"
+            autoFocus
+            onClick={(e) => e.preventDefault()}
+          />
+        ) : (
+          <span className="truncate">{chat.title}</span>
+        )}
+        <div className="hidden group-hover:flex items-center">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              setIsEditing(true);
+            }}
+            className="p-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
+          >
+            <Edit className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              handleDelete();
+            }}
+            className="p-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 function ChatList() {
+  const [searchTerm, setSearchTerm] = useState("");
   const chats = useLiveQuery(
     () => db.chats.orderBy("updatedAt").reverse().toArray(),
     []
   );
-  const location = useLocation();
-  const pathSegments = location.pathname.split("/");
-  const currentChatId = pathSegments[1] === "chat" ? pathSegments[2] : null;
+
+  const filteredChats = useMemo(() => {
+    if (!chats) return [];
+    return chats.filter(
+      (chat) =>
+        chat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        chat.messages.some((msg) =>
+          msg.content.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+    );
+  }, [chats, searchTerm]);
 
   return (
-    <div className="flex-1 overflow-y-auto -mr-4 pr-4">
-      {chats?.map((chat) => (
-        <Link
-          to={`/chat/${chat.id}`}
-          key={chat.id}
-          className={`block p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 truncate ${
-            chat.id === currentChatId ? "bg-gray-200 dark:bg-gray-700" : ""
-          }`}
-        >
-          {chat.title}
-        </Link>
-      ))}
-    </div>
+    <>
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Search chats..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 p-2 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+      <div className="flex-1 overflow-y-auto -mr-4 pr-4">
+        {filteredChats?.map((chat) => (
+          <ChatListItem key={chat.id} chat={chat} />
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -59,6 +149,7 @@ function App() {
       <div className="flex h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
         <nav className="w-64 border-r border-gray-200 dark:border-gray-800 p-2   flex flex-col">
           <div className="flex items-center justify-between mb-6 pl-2">
+            <Logo />
             <h1 className="text-xl font-bold">Aloha</h1>
             <Link
               to="/"
@@ -69,9 +160,12 @@ function App() {
             </Link>
           </div>
           <ChatList />
-          <div className="mt-auto">
+          <div className="mt-auto flex flex-col gap-2">
             <NavLink to="/models">
               <Blocks className="mr-2" /> Models
+            </NavLink>
+            <NavLink to="/settings">
+              <Settings className="mr-2" /> Settings
             </NavLink>
           </div>
         </nav>
@@ -80,6 +174,7 @@ function App() {
             <Route path="/" element={<Chat />} />
             <Route path="/chat/:id" element={<Chat />} />
             <Route path="/models" element={<ModelManagerPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </main>
       </div>

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { Flower, Settings as SettingsIcon } from "lucide-react";
+import { Flower } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useSound from "use-sound";
@@ -7,7 +7,6 @@ import { v4 as uuidv4 } from "uuid";
 import { ChatInput } from "../components/ChatInput";
 import { ChatMessage } from "../components/ChatMessage";
 import { ModelSelector } from "../components/ModelSelector";
-import { SettingsPanel } from "../components/SettingsPanel";
 import { useSettings } from "../hooks/useSettings";
 import { generateChatResponse, generateTitle } from "../lib/api";
 import { db } from "../lib/db";
@@ -23,10 +22,9 @@ export function Chat() {
   const { id: chatId } = useParams();
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [currentModel, setCurrentModel] = useState("");
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
-  const { settings, updateSettings } = useSettings();
+  const { settings } = useSettings();
 
   useEffect(() => {
     if (chatId) {
@@ -170,14 +168,6 @@ export function Chat() {
               onModelChange={setCurrentModel}
             />
           </div>
-          <div className="flex items-center gap-1 lg:gap-4">
-            <button
-              onClick={() => setIsSettingsOpen(true)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
-              <SettingsIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </button>
-          </div>
         </div>
       </header>
 
@@ -210,13 +200,6 @@ export function Chat() {
       </div>
 
       <ChatInput onSend={handleSendMessage} disabled={mutation.isPending} />
-
-      <SettingsPanel
-        settings={settings}
-        onUpdate={updateSettings}
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-      />
     </div>
   );
 }

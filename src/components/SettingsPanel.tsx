@@ -110,6 +110,18 @@ export function SettingsPanel({
               </div>
             )}
           </div>
+
+          <div className="flex items-center space-x-3">
+            <input
+              type="checkbox"
+              checked={settings.autoScroll}
+              onChange={(e) => onUpdate({ autoScroll: e.target.checked })}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              Auto Scroll
+            </span>
+          </div>
         </div>
       </div>
     </div>

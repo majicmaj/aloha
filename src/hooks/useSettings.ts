@@ -4,7 +4,7 @@ import { Settings, defaultSettings } from '../types/settings';
 export function useSettings() {
   const [settings, setSettings] = useState<Settings>(() => {
     const saved = localStorage.getItem('chat-settings');
-    return saved ? JSON.parse(saved) : defaultSettings;
+    return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
   });
 
   useEffect(() => {

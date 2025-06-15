@@ -3,6 +3,7 @@ export interface Settings {
   soundEnabled: boolean;
   messageSound: boolean;
   typingSound: boolean;
+  autoScroll: boolean;
 }
 
 export const defaultSettings: Settings = {
@@ -10,4 +11,5 @@ export const defaultSettings: Settings = {
   soundEnabled: true,
   messageSound: true,
   typingSound: true,
+  autoScroll: true,
 };

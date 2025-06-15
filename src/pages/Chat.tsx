@@ -25,6 +25,12 @@ export function Chat() {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const { settings, updateSettings } = useSettings();
 
+  React.useEffect(() => {
+    if (settings.autoScroll && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, settings.autoScroll]);
+
   const [playMessageSound] = useSound(MESSAGE_SENT_SOUND, {
     volume: 0.2,
     soundEnabled: settings.soundEnabled && settings.messageSound,

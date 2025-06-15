@@ -3,53 +3,63 @@ const OLLAMA_API_URL = import.meta.env.VITE_URL;
 export async function generateChatResponse(
   messages: { role: string; content: string }[],
   model: string,
-  onUpdate: (newChunk: string) => void
+  onUpdate: (newChunk: string) => void,
+  signal: AbortSignal
 ) {
-  const response = await fetch(`${OLLAMA_API_URL}/api/chat`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      messages,
-      stream: true, // Ensure streaming is enabled
-    }),
-  });
+  try {
+    const response = await fetch(`${OLLAMA_API_URL}/api/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        stream: true, // Ensure streaming is enabled
+      }),
+      signal,
+    });
 
-  if (!response.ok || !response.body) {
-    throw new Error("Failed to generate response");
-  }
+    if (!response.ok || !response.body) {
+      throw new Error("Failed to generate response");
+    }
 
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let partialData = "";
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let partialData = "";
 
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
 
-    const chunk = decoder.decode(value, { stream: true });
-    partialData += chunk;
+      const chunk = decoder.decode(value, { stream: true });
+      partialData += chunk;
 
-    // Split the chunk into individual JSON objects
-    const jsonObjects = partialData
-      .split("\n")
-      .filter((line) => line.trim() !== "");
+      // Split the chunk into individual JSON objects
+      const jsonObjects = partialData
+        .split("\n")
+        .filter((line) => line.trim() !== "");
 
-    partialData = ""; // Reset for next batch
+      partialData = ""; // Reset for next batch
 
-    for (const jsonStr of jsonObjects) {
-      try {
-        const parsed = JSON.parse(jsonStr);
-        if (parsed.message && parsed.message.content) {
-          onUpdate(parsed.message.content); // Send new content to UI
+      for (const jsonStr of jsonObjects) {
+        try {
+          const parsed = JSON.parse(jsonStr);
+          if (parsed.message && parsed.message.content) {
+            onUpdate(parsed.message.content); // Send new content to UI
+          }
+        } catch {
+          // Handle case where JSON isn't fully formed yet (streaming issue)
+          partialData = jsonStr;
         }
-      } catch {
-        // Handle case where JSON isn't fully formed yet (streaming issue)
-        partialData = jsonStr;
       }
     }
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      console.log("Chat generation aborted.");
+      return;
+    }
+    throw error;
   }
 }
 

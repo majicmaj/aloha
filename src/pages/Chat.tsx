@@ -26,10 +26,16 @@ export function Chat({ toggleSidebar }: ChatProps) {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentModel, setCurrentModel] = useState("");
+  const abortControllerRef = useRef<AbortController | null>(null);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const scrollState = useRef({ atBottom: true });
+  const activeChatIdRef = useRef(chatId);
   const { settings } = useSettings();
+
+  useEffect(() => {
+    activeChatIdRef.current = chatId;
+  }, [chatId]);
 
   useEffect(() => {
     if (chatId) {
@@ -72,9 +78,14 @@ export function Chat({ toggleSidebar }: ChatProps) {
   const mutation = useMutation<
     { content: string },
     Error,
-    { content: string; userMessage: Message; chatId: string }
+    {
+      content: string;
+      userMessage: Message;
+      chatId: string;
+      signal: AbortSignal;
+    }
   >({
-    mutationFn: async ({ userMessage }) => {
+    mutationFn: async ({ userMessage, signal, chatId: mutationChatId }) => {
       const apiMessages = [...messages, userMessage].map(
         ({ role, content }) => ({
           role,
@@ -85,32 +96,39 @@ export function Chat({ toggleSidebar }: ChatProps) {
       return new Promise((resolve, reject) => {
         let currentMessage = "";
 
-        generateChatResponse(apiMessages, currentModel, (newChunk: string) => {
-          currentMessage += newChunk;
+        generateChatResponse(
+          apiMessages,
+          currentModel,
+          (newChunk: string) => {
+            currentMessage += newChunk;
 
-          setMessages((prevMessages) => {
-            const lastMessage = prevMessages[prevMessages.length - 1];
+            if (activeChatIdRef.current === mutationChatId) {
+              setMessages((prevMessages) => {
+                const lastMessage = prevMessages[prevMessages.length - 1];
 
-            if (lastMessage?.role === "assistant") {
-              return [
-                ...prevMessages.slice(0, -1),
-                {
-                  ...lastMessage,
-                  content: currentMessage,
-                },
-              ];
-            } else {
-              return [
-                ...prevMessages,
-                {
-                  role: "assistant",
-                  content: newChunk,
-                  timestamp: new Date(),
-                },
-              ];
+                if (lastMessage?.role === "assistant") {
+                  return [
+                    ...prevMessages.slice(0, -1),
+                    {
+                      ...lastMessage,
+                      content: currentMessage,
+                    },
+                  ];
+                } else {
+                  return [
+                    ...prevMessages,
+                    {
+                      role: "assistant",
+                      content: currentMessage,
+                      timestamp: new Date(),
+                    },
+                  ];
+                }
+              });
             }
-          });
-        })
+          },
+          signal
+        )
           .then(() => resolve({ content: currentMessage }))
           .catch(reject);
       });
@@ -172,20 +190,30 @@ export function Chat({ toggleSidebar }: ChatProps) {
       playMessageSound();
     }
 
-    mutation.mutate({ content, userMessage, chatId: idToUse });
+    mutation.mutate({
+      content,
+      userMessage,
+      chatId: idToUse,
+      signal:
+        abortControllerRef.current?.signal || new AbortController().signal,
+    });
 
     if (settings.soundEnabled && settings.typingSound) {
       playTypingSound();
     }
   };
 
+  const handleStop = () => {
+    // Implementation of handleStop function
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-white to-gray-100 dark:from-gray-950 dark:to-gray-900">
       <header className="bg-white/80 dark:bg-gray-900/75 backdrop-blur-lg">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2">
+        <div className="max-w-4xl mx-auto px-4 py-1 lg:hidden flex items-center gap-2">
           <button
             onClick={toggleSidebar}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors lg:hidden"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             title="Toggle Sidebar"
           >
             <Menu className="w-6 h-6" />
@@ -230,6 +258,7 @@ export function Chat({ toggleSidebar }: ChatProps) {
         disabled={mutation.isPending}
         currentModel={currentModel}
         onModelChange={setCurrentModel}
+        onStop={handleStop}
       />
     </div>
   );

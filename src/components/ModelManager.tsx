@@ -38,7 +38,7 @@ function ModelCard({
   const modelData = installedModels.find((m) => m.name === modelName);
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 flex flex-col justify-between">
+    <div className="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 flex flex-col justify-between">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           {modelName}
@@ -70,7 +70,7 @@ function ModelCard({
           <button
             onClick={() => pullMutation.mutate(modelName)}
             disabled={isPulling}
-            className="w-full py-2 px-4 rounded-lg bg-blue-600 text-white font-medium transition hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-2 px-4 rounded-lg bg-blue-100 text-blue-900 font-medium transition hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isPulling ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -99,10 +99,10 @@ function ModelGroup({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+    <div className="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-6 flex items-center justify-between"
+        className="w-full p-3 flex items-center justify-between"
       >
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           {groupName}
@@ -115,7 +115,7 @@ function ModelGroup({
         />
       </button>
       {isOpen && (
-        <div className="p-6 pt-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="p-3 pt-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {models.map((modelName) => (
             <ModelCard key={modelName} modelName={modelName} {...props} />
           ))}

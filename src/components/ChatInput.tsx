@@ -1,4 +1,4 @@
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Square } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { cn } from "../utils/cn";
 import { ModelSelector } from "./ModelSelector";
@@ -8,6 +8,7 @@ interface ChatInputProps {
   disabled?: boolean;
   currentModel: string;
   onModelChange: (model: string) => void;
+  onStop: () => void;
 }
 
 export function ChatInput({
@@ -15,6 +16,7 @@ export function ChatInput({
   disabled,
   currentModel,
   onModelChange,
+  onStop,
 }: ChatInputProps) {
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -63,18 +65,32 @@ export function ChatInput({
             className="w-full bg-transparent p-3 pr-20 resize-none focus:outline-none max-h-48 text-base"
             rows={1}
           />
-          <button
-            type="submit"
-            disabled={disabled || !input.trim()}
-            className={cn(
-              "absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 grid place-items-center rounded-full bg-blue-600 text-white transition-colors",
-              "hover:bg-blue-700",
-              "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800",
-              "disabled:bg-gray-300 disabled:dark:bg-gray-600 disabled:cursor-not-allowed"
-            )}
-          >
-            <ArrowUp className="w-5 h-5" />
-          </button>
+          {disabled ? (
+            <button
+              type="button"
+              onClick={onStop}
+              className={cn(
+                "absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 grid place-items-center rounded-full bg-red-600 text-white transition-colors",
+                "hover:bg-red-700",
+                "focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+              )}
+            >
+              <Square className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={!input.trim()}
+              className={cn(
+                "absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 grid place-items-center rounded-full bg-blue-600 text-white transition-colors",
+                "hover:bg-blue-700",
+                "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800",
+                "disabled:bg-gray-300 disabled:dark:bg-gray-600 disabled:cursor-not-allowed"
+              )}
+            >
+              <ArrowUp className="w-5 h-5" />
+            </button>
+          )}
         </div>
         <div className="flex justify-between items-center mt-2 px-2">
           <ModelSelector

@@ -163,7 +163,7 @@ function App() {
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
-          <div className="flex items-center justify-between mb-6 pl-2">
+          <div className="flex items-center justify-between mb-3 pl-2">
             <Logo />
             <h1 className="text-xl font-bold">Aloha</h1>
             <Link

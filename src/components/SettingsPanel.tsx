@@ -57,17 +57,35 @@ export function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
         </button>
       </SettingItem>
 
-      <SettingItem
-        title="Auto-Scroll"
-        description="Automatically scroll to the latest message"
-      >
-        <input
-          type="checkbox"
-          checked={settings.autoScroll}
-          onChange={(e) => onUpdate({ autoScroll: e.target.checked })}
-          className="rounded h-5 w-5 border-gray-300 text-blue-600 focus:ring-blue-500"
-        />
-      </SettingItem>
+      <div className="space-y-4">
+        <SettingItem
+          title="System Prompt"
+          description="Enable or disable the system prompt"
+        >
+          <input
+            type="checkbox"
+            checked={settings.enableSystemPrompt}
+            onChange={(e) => onUpdate({ enableSystemPrompt: e.target.checked })}
+            className="rounded h-5 w-5 border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+        </SettingItem>
+        {settings.enableSystemPrompt && (
+          <div className="space-y-2 pl-4 border-l-2 border-gray-200 dark:border-gray-700 ml-4">
+            <SettingItem
+              title="Custom System Prompt"
+              description="The system prompt is sent to the AI for all chats. Changes take effect on the next message."
+              vertical
+            >
+              <textarea
+                value={settings.systemPrompt}
+                onChange={(e) => onUpdate({ systemPrompt: e.target.value })}
+                className="w-full h-32 p-2 rounded-lg bg-gray-100 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                placeholder="e.g., You are a helpful assistant."
+              />
+            </SettingItem>
+          </div>
+        )}
+      </div>
 
       <SettingItem
         title="Title Generation"
@@ -101,32 +119,16 @@ export function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
       </SettingItem>
 
       <SettingItem
-        title="System Prompt"
-        description="Enable or disable the system prompt"
+        title="Auto-Scroll"
+        description="Automatically scroll to the latest message"
       >
         <input
           type="checkbox"
-          checked={settings.enableSystemPrompt}
-          onChange={(e) => onUpdate({ enableSystemPrompt: e.target.checked })}
+          checked={settings.autoScroll}
+          onChange={(e) => onUpdate({ autoScroll: e.target.checked })}
           className="rounded h-5 w-5 border-gray-300 text-blue-600 focus:ring-blue-500"
         />
       </SettingItem>
-      {settings.enableSystemPrompt && (
-        <div className="space-y-2 pl-4 border-l-2 border-gray-200 dark:border-gray-700 ml-4">
-          <SettingItem
-            title="Custom System Prompt"
-            description="Set a custom system prompt for the AI"
-            vertical
-          >
-            <textarea
-              value={settings.systemPrompt}
-              onChange={(e) => onUpdate({ systemPrompt: e.target.value })}
-              className="w-full h-32 p-2 rounded-lg bg-gray-100 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
-              placeholder="e.g., You are a helpful assistant."
-            />
-          </SettingItem>
-        </div>
-      )}
 
       <div className="space-y-4">
         <SettingItem

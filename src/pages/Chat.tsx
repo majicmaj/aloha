@@ -244,13 +244,13 @@ export function Chat({ toggleSidebar }: ChatProps) {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-white to-gray-100 dark:from-gray-950 dark:to-gray-900">
       <header className="bg-white/80 dark:bg-gray-900/75 backdrop-blur-lg">
-        <div className="max-w-4xl mx-auto px-4 py-1 lg:hidden flex items-center gap-2">
+        <div className="max-w-4xl mx-auto px-3 py-2 lg:hidden flex items-center gap-2">
           <button
             onClick={toggleSidebar}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             title="Toggle Sidebar"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-5 h-5" />
           </button>
         </div>
       </header>

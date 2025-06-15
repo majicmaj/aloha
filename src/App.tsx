@@ -175,7 +175,7 @@ function App() {
             </Link>
           </div>
           <ChatList />
-          <div className="mt-auto flex flex-col gap-2">
+          <div className="mt-auto flex flex-col gap-2 border-t pt-1 border-gray-200 dark:border-slate-700">
             <NavLink to="/models">
               <Blocks className="mr-2" /> Models
             </NavLink>

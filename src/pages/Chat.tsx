@@ -1,10 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
-import { Database, Flower, Settings as SettingsIcon } from "lucide-react";
+import { Flower, Settings as SettingsIcon } from "lucide-react";
 import React, { useState } from "react";
 import useSound from "use-sound";
 import { ChatInput } from "../components/ChatInput";
 import { ChatMessage } from "../components/ChatMessage";
-import { ModelManager } from "../components/ModelManager";
 import { ModelSelector } from "../components/ModelSelector";
 import { SettingsPanel } from "../components/SettingsPanel";
 import { useSettings } from "../hooks/useSettings";
@@ -20,7 +19,6 @@ const TYPING_SOUND =
 export function Chat() {
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isModelManagerOpen, setIsModelManagerOpen] = useState(false);
   const [currentModel, setCurrentModel] = useState("");
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const { settings, updateSettings } = useSettings();
@@ -111,13 +109,6 @@ export function Chat() {
           </div>
           <div className="flex items-center gap-1 lg:gap-4">
             <button
-              onClick={() => setIsModelManagerOpen(true)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="Manage Models"
-            >
-              <Database className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </button>
-            <button
               onClick={() => setIsSettingsOpen(true)}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
@@ -162,11 +153,6 @@ export function Chat() {
         onUpdate={updateSettings}
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
-      />
-
-      <ModelManager
-        isOpen={isModelManagerOpen}
-        onClose={() => setIsModelManagerOpen(false)}
       />
     </div>
   );

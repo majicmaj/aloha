@@ -54,7 +54,10 @@ async function fetchModels() {
     "  .flat();\n";
 
   const targetPath = path.join(process.cwd(), "src", "constants", "models.ts");
+  const cjsTargetPath = path.join(process.cwd(), "dist", "models.cjs");
+
   fs.writeFileSync(targetPath, content);
+  fs.writeFileSync(cjsTargetPath, content);
 
   console.log(`✅ Models updated at ${targetPath}`);
 })();

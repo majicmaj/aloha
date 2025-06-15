@@ -15,6 +15,7 @@ import { db } from "./lib/db";
 import { Chat as ChatType } from "./lib/db";
 import { useState, useMemo } from "react";
 import { Logo } from "./assets/Logo";
+import { cn } from "./utils/cn";
 
 function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   const location = useLocation();
@@ -144,10 +145,24 @@ function ChatList() {
 }
 
 function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
   return (
     <Router>
       <div className="flex h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-        <nav className="w-64 border-r border-gray-200 dark:border-gray-800 p-2   flex flex-col">
+        {sidebarOpen && (
+          <div
+            className="fixed border inset-0 bg-black/50 z-30 lg:hidden"
+            onClick={toggleSidebar}
+          ></div>
+        )}
+        <nav
+          className={cn(
+            "w-64 border-r bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-800 p-2 flex flex-col fixed inset-y-0 left-0 z-40 lg:static lg:translate-x-0 transform transition-transform",
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          )}
+        >
           <div className="flex items-center justify-between mb-6 pl-2">
             <Logo />
             <h1 className="text-xl font-bold">Aloha</h1>
@@ -169,12 +184,21 @@ function App() {
             </NavLink>
           </div>
         </nav>
-        <main className="flex-1">
+        <main className="flex-1 flex flex-col">
           <Routes>
-            <Route path="/" element={<Chat />} />
-            <Route path="/chat/:id" element={<Chat />} />
-            <Route path="/models" element={<ModelManagerPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/" element={<Chat toggleSidebar={toggleSidebar} />} />
+            <Route
+              path="/chat/:id"
+              element={<Chat toggleSidebar={toggleSidebar} />}
+            />
+            <Route
+              path="/models"
+              element={<ModelManagerPage toggleSidebar={toggleSidebar} />}
+            />
+            <Route
+              path="/settings"
+              element={<SettingsPage toggleSidebar={toggleSidebar} />}
+            />
           </Routes>
         </main>
       </div>

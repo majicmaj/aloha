@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { Flower } from "lucide-react";
+import { Flower, Menu } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useSound from "use-sound";
@@ -18,7 +18,11 @@ const MESSAGE_SENT_SOUND =
 const TYPING_SOUND =
   "https://assets.mixkit.co/active_storage/sfx/2357/2357-preview.mp3";
 
-export function Chat() {
+interface ChatProps {
+  toggleSidebar: () => void;
+}
+
+export function Chat({ toggleSidebar }: ChatProps) {
   const { id: chatId } = useParams();
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -161,7 +165,14 @@ export function Chat() {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-white to-gray-100 dark:from-gray-950 dark:to-gray-900">
       <header className="bg-white/80 dark:bg-gray-900/75 backdrop-blur-lg">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2 justify-between">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2">
+          <button
+            onClick={toggleSidebar}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors lg:hidden"
+            title="Toggle Sidebar"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
           <div className="max-w-64">
             <ModelSelector
               currentModel={currentModel}

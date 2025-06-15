@@ -51,6 +51,18 @@ export function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
         </button>
       </SettingItem>
 
+      <SettingItem
+        title="Auto-Scroll"
+        description="Automatically scroll to the latest message"
+      >
+        <input
+          type="checkbox"
+          checked={settings.autoScroll}
+          onChange={(e) => onUpdate({ autoScroll: e.target.checked })}
+          className="rounded h-5 w-5 border-gray-300 text-blue-600 focus:ring-blue-500"
+        />
+      </SettingItem>
+
       <div className="space-y-4">
         <SettingItem
           title="Sound Effects"

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { Flower, Menu } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useSound from "use-sound";
 import { v4 as uuidv4 } from "uuid";
@@ -28,6 +28,8 @@ export function Chat({ toggleSidebar }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentModel, setCurrentModel] = useState("");
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollState = useRef({ atBottom: true });
   const { settings } = useSettings();
 
   useEffect(() => {
@@ -41,6 +43,22 @@ export function Chat({ toggleSidebar }: ChatProps) {
       setMessages([]);
     }
   }, [chatId]);
+
+  const handleScroll = () => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const atBottom =
+        container.scrollHeight - container.clientHeight <=
+        container.scrollTop + 10;
+      scrollState.current.atBottom = atBottom;
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (settings.autoScroll && scrollState.current.atBottom) {
+      messagesEndRef.current?.scrollIntoView();
+    }
+  }, [messages, settings.autoScroll]);
 
   const [playMessageSound] = useSound(MESSAGE_SENT_SOUND, {
     volume: 0.2,
@@ -182,7 +200,11 @@ export function Chat({ toggleSidebar }: ChatProps) {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto">
+      <div
+        className="flex-1 overflow-y-auto"
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+      >
         <div className="max-w-4xl mx-auto py-6">
           {messages.map((message, index) => (
             <ChatMessage

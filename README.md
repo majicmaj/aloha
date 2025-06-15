@@ -37,7 +37,29 @@ Aloha is a self-hosted chat application that connects to a local **Ollama** inst
    ```
 
 4. **(Optional) Configure Ollama for Network Access:**  
-   If running Ollama on a separate server, update its environment variables to allow network access. Refer to the [Ollama FAQ](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server) for details.
+   If running Ollama on a separate server, you need to configure it to allow network access. This requires setting the `OLLAMA_HOST` and `OLLAMA_ORIGINS` environment variables.
+
+   Here's how to do it on Linux:
+
+   a. Edit the systemd service file for Ollama:
+   ```bash
+   sudo systemctl edit ollama.service
+   ```
+
+   b. Add the following content to the file:
+   ```ini
+   [Service]
+   Environment="OLLAMA_HOST=0.0.0.0"
+   Environment="OLLAMA_ORIGINS=*"
+   ```
+
+   c. Reload the systemd daemon and restart Ollama:
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl restart ollama
+   ```
+
+   For more details, refer to the [Ollama FAQ](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server).
 
    - By default, the **Ollama API** is available at:
      ```

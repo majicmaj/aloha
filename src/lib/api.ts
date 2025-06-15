@@ -106,7 +106,7 @@ export async function getRunningModels() {
 }
 
 export async function generateTitle(model: string, prompt: string) {
-  const response = await fetch("http://localhost:11434/api/generate", {
+  const response = await fetch(`${OLLAMA_API_URL}/api/generate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

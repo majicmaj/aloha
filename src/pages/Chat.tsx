@@ -188,6 +188,7 @@ export function Chat({ toggleSidebar }: ChatProps) {
     let newMessages: Message[] = [];
 
     if (!idToUse) {
+      setMessages([]);
       const newChatId = uuidv4();
       newMessages = [userMessage];
       await db.chats.add({

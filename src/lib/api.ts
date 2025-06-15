@@ -45,7 +45,7 @@ export async function generateChatResponse(
         if (parsed.message && parsed.message.content) {
           onUpdate(parsed.message.content); // Send new content to UI
         }
-      } catch (error) {
+      } catch {
         // Handle case where JSON isn't fully formed yet (streaming issue)
         partialData = jsonStr;
       }

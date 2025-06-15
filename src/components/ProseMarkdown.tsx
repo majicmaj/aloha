@@ -1,3 +1,4 @@
+import React, { HTMLAttributes } from "react";
 import { Copy } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -25,7 +26,12 @@ const ProseMarkdown = ({
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
-            code({ node, inline, className, children, ...props }) {
+            code(
+              props: HTMLAttributes<HTMLElement> & {
+                inline?: boolean;
+              }
+            ) {
+              const { inline, className, children, ...rest } = props;
               const match = /language-(\w+)/.exec(className || "");
               return (
                 <div className="overflow-auto flex flex-col">
@@ -35,7 +41,9 @@ const ProseMarkdown = ({
                         {match?.[1] || ""}
                       </span>
                       <button
-                        onClick={() => copyCode(children[0])}
+                        onClick={() =>
+                          copyCode(String(children).replace(/\n$/, ""))
+                        }
                         className="p-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
                       >
                         <Copy className="w-4 h-4 text-gray-800 dark:text-gray-200" />
@@ -45,16 +53,17 @@ const ProseMarkdown = ({
 
                   {!inline && match ? (
                     <SyntaxHighlighter
-                      style={vscDarkPlus}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      style={vscDarkPlus as any}
                       language={match?.[1] || ""}
                       PreTag="div"
                       className="rounded-b-lg"
-                      {...props}
+                      {...rest}
                     >
                       {String(children).replace(/\n$/, "")}
                     </SyntaxHighlighter>
                   ) : (
-                    <code className={className} {...props}>
+                    <code className={className} {...rest}>
                       {children}
                     </code>
                   )}

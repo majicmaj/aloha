@@ -9,6 +9,16 @@ interface ModelManagerProps {
   onClose: () => void;
 }
 
+interface Model {
+  name: string;
+  size: number;
+  description?: string;
+  author?: string;
+  license?: string;
+  tags?: string[];
+  url?: string;
+}
+
 export function ModelManager({ isOpen, onClose }: ModelManagerProps) {
   const queryClient = useQueryClient();
   const [selectedModel, setSelectedModel] = useState("");
@@ -42,7 +52,7 @@ export function ModelManager({ isOpen, onClose }: ModelManagerProps) {
 
   // Filter out already installed models from available models
   const availableModels = RECOMMENDED_MODELS.filter(
-    (model) => !installedModels.some((m: any) => m.name === model)
+    (model) => !installedModels.some((m: Model) => m.name === model)
   );
 
   return (
@@ -81,7 +91,7 @@ export function ModelManager({ isOpen, onClose }: ModelManagerProps) {
                     No models installed
                   </div>
                 ) : (
-                  installedModels.map((model: any) => (
+                  installedModels.map((model: Model) => (
                     <div
                       key={model.name}
                       className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50"

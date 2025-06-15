@@ -45,45 +45,33 @@ export function Chat() {
 
       return new Promise<void>((resolve, reject) => {
         let currentMessage = "";
-        let thinkingContent = "";
-        const inThinkingMode = false;
 
-        generateChatResponse(
-          apiMessages,
-          currentModel,
-          (newChunk, isThinking) => {
-            if (isThinking) {
-              thinkingContent += newChunk;
+        generateChatResponse(apiMessages, currentModel, (newChunk: string) => {
+          currentMessage += newChunk;
+
+          setMessages((prevMessages) => {
+            const lastMessage = prevMessages[prevMessages.length - 1];
+
+            if (lastMessage?.role === "assistant") {
+              return [
+                ...prevMessages.slice(0, -1),
+                {
+                  ...lastMessage,
+                  content: currentMessage,
+                },
+              ];
             } else {
-              currentMessage += newChunk;
+              return [
+                ...prevMessages,
+                {
+                  role: "assistant",
+                  content: newChunk,
+                  timestamp: new Date(),
+                },
+              ];
             }
-
-            setMessages((prevMessages) => {
-              const lastMessage = prevMessages[prevMessages.length - 1];
-
-              if (lastMessage?.role === "assistant") {
-                return [
-                  ...prevMessages.slice(0, -1),
-                  {
-                    ...lastMessage,
-                    content: currentMessage,
-                    thinkingContent: thinkingContent, // Store separately
-                  },
-                ];
-              } else {
-                return [
-                  ...prevMessages,
-                  {
-                    role: "assistant",
-                    content: newChunk,
-                    thinkingContent,
-                    timestamp: new Date(),
-                  },
-                ];
-              }
-            });
-          }
-        )
+          });
+        })
           .then(resolve)
           .catch(reject);
       });

@@ -17,13 +17,22 @@ import { useState, useMemo } from "react";
 import { Logo } from "./assets/Logo";
 import { cn } from "./utils/cn";
 
-function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
+function NavLink({
+  to,
+  children,
+  onNavigate,
+}: {
+  to: string;
+  children: React.ReactNode;
+  onNavigate: () => void;
+}) {
   const location = useLocation();
   const isActive = location.pathname === to;
 
   return (
     <Link
       to={to}
+      onClick={onNavigate}
       className={`w-full p-2 flex items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
         isActive ? "bg-gray-200 dark:bg-gray-700" : ""
       }`}
@@ -33,7 +42,13 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   );
 }
 
-function ChatListItem({ chat }: { chat: ChatType }) {
+function ChatListItem({
+  chat,
+  onNavigate,
+}: {
+  chat: ChatType;
+  onNavigate: () => void;
+}) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(chat.title);
   const navigate = useNavigate();
@@ -61,6 +76,7 @@ function ChatListItem({ chat }: { chat: ChatType }) {
   return (
     <Link
       to={`/chat/${chat.id}`}
+      onClick={onNavigate}
       className={`group block p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 truncate ${
         isActive ? "bg-gray-200 dark:bg-gray-700" : ""
       }`}
@@ -105,7 +121,7 @@ function ChatListItem({ chat }: { chat: ChatType }) {
   );
 }
 
-function ChatList() {
+function ChatList({ onNavigate }: { onNavigate: () => void }) {
   const [searchTerm, setSearchTerm] = useState("");
   const chats = useLiveQuery(
     () => db.chats.orderBy("updatedAt").reverse().toArray(),
@@ -137,7 +153,7 @@ function ChatList() {
       </div>
       <div className="flex-1 overflow-y-auto -mr-4 pr-4">
         {filteredChats?.map((chat) => (
-          <ChatListItem key={chat.id} chat={chat} />
+          <ChatListItem key={chat.id} chat={chat} onNavigate={onNavigate} />
         ))}
       </div>
     </>
@@ -147,6 +163,7 @@ function ChatList() {
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const closeSidebar = () => setSidebarOpen(false);
 
   return (
     <Router>
@@ -159,7 +176,7 @@ function App() {
         )}
         <nav
           className={cn(
-            "w-64 border-r bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-800 p-2 flex flex-col fixed inset-y-0 left-0 z-40 lg:static lg:translate-x-0 transform transition-transform",
+            "w-72 border-r bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-800 p-2 flex flex-col fixed inset-y-0 left-0 z-40 lg:static lg:translate-x-0 transform transition-transform",
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
@@ -170,16 +187,17 @@ function App() {
               to="/"
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
               title="New Chat"
+              onClick={closeSidebar}
             >
               <Plus />
             </Link>
           </div>
-          <ChatList />
+          <ChatList onNavigate={closeSidebar} />
           <div className="mt-auto flex flex-col gap-2 border-t pt-1 border-gray-200 dark:border-slate-700">
-            <NavLink to="/models">
+            <NavLink to="/models" onNavigate={closeSidebar}>
               <Blocks className="mr-2" /> Models
             </NavLink>
-            <NavLink to="/settings">
+            <NavLink to="/settings" onNavigate={closeSidebar}>
               <Settings className="mr-2" /> Settings
             </NavLink>
           </div>

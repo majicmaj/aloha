@@ -6,7 +6,6 @@ import useSound from "use-sound";
 import { v4 as uuidv4 } from "uuid";
 import { ChatInput } from "../components/ChatInput";
 import { ChatMessage } from "../components/ChatMessage";
-import { ModelSelector } from "../components/ModelSelector";
 import { useSettings } from "../hooks/useSettings";
 import { generateChatResponse, generateTitle } from "../lib/api";
 import { db } from "../lib/db";
@@ -191,12 +190,6 @@ export function Chat({ toggleSidebar }: ChatProps) {
           >
             <Menu className="w-6 h-6" />
           </button>
-          <div className="max-w-64">
-            <ModelSelector
-              currentModel={currentModel}
-              onModelChange={setCurrentModel}
-            />
-          </div>
         </div>
       </header>
 
@@ -232,7 +225,12 @@ export function Chat({ toggleSidebar }: ChatProps) {
         </div>
       </div>
 
-      <ChatInput onSend={handleSendMessage} disabled={mutation.isPending} />
+      <ChatInput
+        onSend={handleSendMessage}
+        disabled={mutation.isPending}
+        currentModel={currentModel}
+        onModelChange={setCurrentModel}
+      />
     </div>
   );
 }

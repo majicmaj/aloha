@@ -1,12 +1,21 @@
 import { ArrowUp } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { cn } from "../utils/cn";
+import { ModelSelector } from "./ModelSelector";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
   disabled?: boolean;
+  currentModel: string;
+  onModelChange: (model: string) => void;
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({
+  onSend,
+  disabled,
+  currentModel,
+  onModelChange,
+}: ChatInputProps) {
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -36,38 +45,45 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
   };
 
   return (
-    <div className="">
-      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-4 py-0">
-        <div className="flex gap-4 items-end">
-          <div className="flex-1 min-w-0">
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={disabled}
-              placeholder="Ask anything (Shift + Enter for new line)"
-              className="w-full min-h-[48px] max-h-[200px] rounded-2xl border border-gray-200 px-4 py-3 bg-white
-                     dark:bg-gray-800 text-gray-900 dark:text-gray-100 dark:border-gray-700
-                       transition-all duration-200 ease-in-out resize-none
-                       focus:border-blue-400 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-20 focus:outline-none
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                lineHeight: "1.5",
-              }}
-            />
-          </div>
+    <div className="p-4 bg-white/70 dark:bg-gray-950/70 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800">
+      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+        <div
+          className={cn(
+            "relative flex items-end rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800",
+            "focus-within:ring-2 focus-within:ring-blue-500"
+          )}
+        >
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={disabled}
+            placeholder="Ask anything..."
+            className="w-full bg-transparent p-3 pr-20 resize-none focus:outline-none max-h-48 text-base"
+            rows={1}
+          />
           <button
             type="submit"
             disabled={disabled || !input.trim()}
-            className="h-10 w-10 grid place-items-center rounded-full bg-gray-900 dark:bg-white
-                     text-white dark:text-gray-900 font-medium transition-all duration-200 ease-in-out
-                     focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-20
-                     disabled:opacity-15 disabled:cursor-not-allowed disabled:hover:shadow-none
-                     transform hover:-translate-y-0.5 active:translate-y-0 mb-1"
+            className={cn(
+              "absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 grid place-items-center rounded-full bg-blue-600 text-white transition-colors",
+              "hover:bg-blue-700",
+              "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800",
+              "disabled:bg-gray-300 disabled:dark:bg-gray-600 disabled:cursor-not-allowed"
+            )}
           >
-            <ArrowUp className="w-7 h-7" />
+            <ArrowUp className="w-5 h-5" />
           </button>
+        </div>
+        <div className="flex justify-between items-center mt-2 px-2">
+          <ModelSelector
+            currentModel={currentModel}
+            onModelChange={onModelChange}
+          />
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            Shift + Enter for new line
+          </p>
         </div>
       </form>
     </div>

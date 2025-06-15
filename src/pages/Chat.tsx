@@ -172,6 +172,9 @@ export function Chat({ toggleSidebar }: ChatProps) {
         }
       }
     },
+    onSettled: () => {
+      abortControllerRef.current = null;
+    },
   });
 
   const handleSendMessage = async (content: string) => {
@@ -212,6 +215,9 @@ export function Chat({ toggleSidebar }: ChatProps) {
       playMessageSound();
     }
 
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     const messagesForApi =
       settings.enableSystemPrompt && settings.systemPrompt
         ? [
@@ -228,8 +234,7 @@ export function Chat({ toggleSidebar }: ChatProps) {
       userMessage,
       messages: messagesForApi,
       chatId: idToUse,
-      signal:
-        abortControllerRef.current?.signal || new AbortController().signal,
+      signal: controller.signal,
     });
 
     if (settings.soundEnabled && settings.typingSound) {
@@ -238,7 +243,9 @@ export function Chat({ toggleSidebar }: ChatProps) {
   };
 
   const handleStop = () => {
-    // Implementation of handleStop function
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
   };
 
   return (

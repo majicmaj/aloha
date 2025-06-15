@@ -79,19 +79,17 @@ export function Chat({ toggleSidebar }: ChatProps) {
     { content: string },
     Error,
     {
-      content: string;
       userMessage: Message;
+      messages: Message[];
       chatId: string;
       signal: AbortSignal;
     }
   >({
-    mutationFn: async ({ userMessage, signal, chatId: mutationChatId }) => {
-      const apiMessages = [...messages, userMessage].map(
-        ({ role, content }) => ({
-          role,
-          content,
-        })
-      );
+    mutationFn: async ({ messages, signal, chatId: mutationChatId }) => {
+      const apiMessages = messages.map(({ role, content }) => ({
+        role,
+        content,
+      }));
 
       return new Promise((resolve, reject) => {
         let currentMessage = "";
@@ -121,6 +119,7 @@ export function Chat({ toggleSidebar }: ChatProps) {
                       role: "assistant",
                       content: currentMessage,
                       timestamp: new Date(),
+                      model: currentModel,
                     },
                   ];
                 }
@@ -139,25 +138,37 @@ export function Chat({ toggleSidebar }: ChatProps) {
       }
 
       const { content: assistantContent } = data;
-      const { userMessage, chatId } = variables;
+      const { chatId } = variables;
 
       const assistantMessage: Message = {
         role: "assistant",
         content: assistantContent,
         timestamp: new Date(),
+        model: currentModel,
       };
 
       const chat = await db.chats.get(chatId);
       if (chat) {
-        const finalMessages = [...chat.messages, userMessage, assistantMessage];
+        const finalMessages = [...chat.messages, assistantMessage];
         await db.chats.update(chatId, {
           messages: finalMessages,
           updatedAt: new Date(),
         });
 
         if (chat.title === "New Chat") {
-          const title = await generateTitle(currentModel, userMessage.content);
-          await db.chats.update(chatId, { title });
+          let title: string;
+          if (settings.titleGenerationMethod === "prompt") {
+            title = variables.userMessage.content
+              .split(" ")
+              .slice(0, 5)
+              .join(" ");
+          } else {
+            title = await generateTitle(
+              currentModel,
+              variables.userMessage.content
+            );
+          }
+          await db.chats.update(chatId, { title: title || "New chat" });
         }
       }
     },
@@ -171,28 +182,51 @@ export function Chat({ toggleSidebar }: ChatProps) {
     };
 
     let idToUse = chatId;
+    let newMessages: Message[] = [];
+
     if (!idToUse) {
       const newChatId = uuidv4();
+      newMessages = [userMessage];
       await db.chats.add({
         id: newChatId,
         title: "New Chat",
-        messages: [],
+        messages: newMessages,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
       navigate(`/chat/${newChatId}`, { replace: true });
       idToUse = newChatId;
+    } else {
+      const chat = await db.chats.get(idToUse);
+      if (chat) {
+        newMessages = [...chat.messages, userMessage];
+        await db.chats.update(idToUse, {
+          messages: newMessages,
+        });
+      }
     }
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages(newMessages);
 
     if (settings.soundEnabled && settings.messageSound) {
       playMessageSound();
     }
 
+    const messagesForApi =
+      settings.enableSystemPrompt && settings.systemPrompt
+        ? [
+            {
+              role: "system" as const,
+              content: settings.systemPrompt,
+              timestamp: new Date(),
+            },
+            ...newMessages,
+          ]
+        : newMessages;
+
     mutation.mutate({
-      content,
       userMessage,
+      messages: messagesForApi,
       chatId: idToUse,
       signal:
         abortControllerRef.current?.signal || new AbortController().signal,

@@ -10,20 +10,26 @@ function SettingItem({
   title,
   description,
   children,
+  vertical,
 }: {
   title: string;
   description: string;
   children: React.ReactNode;
+  vertical?: boolean;
 }) {
   return (
-    <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg flex items-center justify-between">
+    <div
+      className={`bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg flex ${
+        vertical ? "flex-col items-start gap-4" : "items-center justify-between"
+      }`}
+    >
       <div>
         <h3 className="font-semibold">{title}</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400">
           {description}
         </p>
       </div>
-      <div>{children}</div>
+      <div className={vertical ? "w-full" : ""}>{children}</div>
     </div>
   );
 }
@@ -62,6 +68,65 @@ export function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
           className="rounded h-5 w-5 border-gray-300 text-blue-600 focus:ring-blue-500"
         />
       </SettingItem>
+
+      <SettingItem
+        title="Title Generation"
+        description="Choose how to generate chat titles"
+        vertical
+      >
+        <div className="flex flex-col gap-2">
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="title-generation"
+              value="llm"
+              checked={settings.titleGenerationMethod === "llm"}
+              onChange={() => onUpdate({ titleGenerationMethod: "llm" })}
+              className="rounded-full h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span>Generate via LLM</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="title-generation"
+              value="prompt"
+              checked={settings.titleGenerationMethod === "prompt"}
+              onChange={() => onUpdate({ titleGenerationMethod: "prompt" })}
+              className="rounded-full h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span>Use first few words of prompt</span>
+          </label>
+        </div>
+      </SettingItem>
+
+      <SettingItem
+        title="System Prompt"
+        description="Enable or disable the system prompt"
+      >
+        <input
+          type="checkbox"
+          checked={settings.enableSystemPrompt}
+          onChange={(e) => onUpdate({ enableSystemPrompt: e.target.checked })}
+          className="rounded h-5 w-5 border-gray-300 text-blue-600 focus:ring-blue-500"
+        />
+      </SettingItem>
+      {settings.enableSystemPrompt && (
+        <div className="space-y-2 pl-4 border-l-2 border-gray-200 dark:border-gray-700 ml-4">
+          <SettingItem
+            title="Custom System Prompt"
+            description="Set a custom system prompt for the AI"
+            vertical
+          >
+            <textarea
+              value={settings.systemPrompt}
+              onChange={(e) => onUpdate({ systemPrompt: e.target.value })}
+              className="w-full h-32 p-2 rounded-lg bg-gray-100 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+              placeholder="e.g., You are a helpful assistant."
+            />
+          </SettingItem>
+        </div>
+      )}
 
       <div className="space-y-4">
         <SettingItem

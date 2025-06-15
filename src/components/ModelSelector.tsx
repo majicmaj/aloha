@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { getInstalledModels } from "../lib/api";
 import { cn } from "../utils/cn";
 
@@ -35,6 +36,17 @@ export function ModelSelector({
     return (
       <div className="text-xs text-red-500 dark:text-red-400">
         Failed to load
+      </div>
+    );
+  }
+
+  if (!isLoading && models?.length === 0) {
+    return (
+      <div className="text-xs">
+        No models installed.
+        <Link to="/models" className="text-blue-500 hover:underline ml-1">
+          Add a model
+        </Link>
       </div>
     );
   }

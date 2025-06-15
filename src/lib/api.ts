@@ -116,11 +116,25 @@ export async function generateTitle(model: string, prompt: string) {
       prompt: `Generate a short, concise title (4-5 words) for the following prompt: "${prompt}"`,
       stream: false,
       options: {
-        num_predict: 20,
+        num_predict: 1000,
       },
     }),
   });
 
   const data = await response.json();
-  return data.response.trim();
+  let title = data.response.trim();
+
+  // Remove <think>...</think> blocks
+  title = title.replace(/<think>[\s\S]*?<\/think>/g, "");
+
+  // Remove any remaining start <think> tag if the end tag is missing
+  title = title.replace(/<think>[\s\S]*/, "");
+
+  // Clean up the title
+  title = title.trim();
+  if (title.startsWith('"') && title.endsWith('"')) {
+    title = title.substring(1, title.length - 1);
+  }
+
+  return title;
 }

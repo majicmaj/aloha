@@ -94,3 +94,23 @@ export async function getRunningModels() {
   if (!response.ok) throw new Error("Failed to fetch running models");
   return response.json();
 }
+
+export async function generateTitle(model: string, prompt: string) {
+  const response = await fetch("http://localhost:11434/api/generate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: model,
+      prompt: `Generate a short, concise title (4-5 words) for the following prompt: "${prompt}"`,
+      stream: false,
+      options: {
+        num_predict: 20,
+      },
+    }),
+  });
+
+  const data = await response.json();
+  return data.response.trim();
+}

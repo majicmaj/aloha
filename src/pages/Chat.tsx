@@ -1,13 +1,16 @@
 import { useMutation } from "@tanstack/react-query";
 import { Flower, Settings as SettingsIcon } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import useSound from "use-sound";
+import { v4 as uuidv4 } from "uuid";
 import { ChatInput } from "../components/ChatInput";
 import { ChatMessage } from "../components/ChatMessage";
 import { ModelSelector } from "../components/ModelSelector";
 import { SettingsPanel } from "../components/SettingsPanel";
 import { useSettings } from "../hooks/useSettings";
-import { generateChatResponse } from "../lib/api";
+import { generateChatResponse, generateTitle } from "../lib/api";
+import { db } from "../lib/db";
 import type { Message } from "../types/chat";
 
 // Sound effects from mixkit.co (free for commercial use)
@@ -17,11 +20,25 @@ const TYPING_SOUND =
   "https://assets.mixkit.co/active_storage/sfx/2357/2357-preview.mp3";
 
 export function Chat() {
-  const [messages, setMessages] = React.useState<Message[]>([]);
+  const { id: chatId } = useParams();
+  const navigate = useNavigate();
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [currentModel, setCurrentModel] = useState("");
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const { settings, updateSettings } = useSettings();
+
+  useEffect(() => {
+    if (chatId) {
+      db.chats.get(chatId).then((chat) => {
+        if (chat) {
+          setMessages(chat.messages);
+        }
+      });
+    } else {
+      setMessages([]);
+    }
+  }, [chatId]);
 
   const [playMessageSound] = useSound(MESSAGE_SENT_SOUND, {
     volume: 0.2,
@@ -33,15 +50,20 @@ export function Chat() {
     soundEnabled: settings.soundEnabled && settings.typingSound,
   });
 
-  const mutation = useMutation({
-    mutationFn: async (content: string) => {
-      const apiMessages = messages.map(({ role, content }) => ({
-        role,
-        content,
-      }));
-      apiMessages.push({ role: "user", content });
+  const mutation = useMutation<
+    { content: string },
+    Error,
+    { content: string; userMessage: Message; chatId: string }
+  >({
+    mutationFn: async ({ userMessage }) => {
+      const apiMessages = [...messages, userMessage].map(
+        ({ role, content }) => ({
+          role,
+          content,
+        })
+      );
 
-      return new Promise<void>((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         let currentMessage = "";
 
         generateChatResponse(apiMessages, currentModel, (newChunk: string) => {
@@ -70,28 +92,69 @@ export function Chat() {
             }
           });
         })
-          .then(resolve)
+          .then(() => resolve({ content: currentMessage }))
           .catch(reject);
       });
     },
-    onSuccess: () => {
+    onSuccess: async (data, variables) => {
       if (settings.soundEnabled && settings.messageSound) {
         playMessageSound();
+      }
+
+      const { content: assistantContent } = data;
+      const { userMessage, chatId } = variables;
+
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: assistantContent,
+        timestamp: new Date(),
+      };
+
+      const chat = await db.chats.get(chatId);
+      if (chat) {
+        const finalMessages = [...chat.messages, userMessage, assistantMessage];
+        await db.chats.update(chatId, {
+          messages: finalMessages,
+          updatedAt: new Date(),
+        });
+
+        if (chat.title === "New Chat") {
+          const title = await generateTitle(currentModel, userMessage.content);
+          await db.chats.update(chatId, { title });
+        }
       }
     },
   });
 
-  const handleSendMessage = (content: string) => {
-    const newMessage: Message = {
+  const handleSendMessage = async (content: string) => {
+    const userMessage: Message = {
       role: "user",
       content,
       timestamp: new Date(),
     };
-    setMessages((prev) => [...prev, newMessage]);
+
+    let idToUse = chatId;
+    if (!idToUse) {
+      const newChatId = uuidv4();
+      await db.chats.add({
+        id: newChatId,
+        title: "New Chat",
+        messages: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      navigate(`/chat/${newChatId}`, { replace: true });
+      idToUse = newChatId;
+    }
+
+    setMessages((prev) => [...prev, userMessage]);
+
     if (settings.soundEnabled && settings.messageSound) {
       playMessageSound();
     }
-    mutation.mutate(content);
+
+    mutation.mutate({ content, userMessage, chatId: idToUse });
+
     if (settings.soundEnabled && settings.typingSound) {
       playTypingSound();
     }

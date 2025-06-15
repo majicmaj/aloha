@@ -94,8 +94,9 @@ export function ModelManager() {
 
   const pullMutation = useMutation<void, Error, string>({
     mutationFn: pullModel,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["installedModels"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["installedModels"] });
+    },
   });
 
   const deleteMutation = useMutation<void, Error, string>({
@@ -104,7 +105,10 @@ export function ModelManager() {
       queryClient.invalidateQueries({ queryKey: ["installedModels"] }),
   });
 
-  const installedModels = (installedData as GetModelsResponse)?.models || [];
+  const installedModels = useMemo(
+    () => (installedData as GetModelsResponse)?.models || [],
+    [installedData]
+  );
 
   const availableModels = useMemo(() => {
     const installedModelNames = new Set(
